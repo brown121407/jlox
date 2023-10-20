@@ -30,6 +30,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(ExpressionList expressionList) {
+        return parenthesize("comma", expressionList.expressions().toArray(Expr[]::new));
+    }
+
+    @Override
     public String walk(Literal expr) {
         if (expr.value() == null) {
             return "nil";

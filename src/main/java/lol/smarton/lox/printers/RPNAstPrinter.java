@@ -5,6 +5,8 @@ import lol.smarton.lox.Token;
 import lol.smarton.lox.TokenType;
 import lol.smarton.lox.expr.*;
 
+import java.util.stream.Collectors;
+
 public class RPNAstPrinter implements AstWalker<String> {
     public static void main(String[] args) {
         Expr expression = new Binary(
@@ -43,5 +45,10 @@ public class RPNAstPrinter implements AstWalker<String> {
     @Override
     public String walk(Grouping grouping) {
         return walk(grouping.expression());
+    }
+
+    @Override
+    public String walk(ExpressionList expressionList) {
+        return "(" + expressionList.expressions().stream().map(this::walk).collect(Collectors.joining(", ")) + ")";
     }
 }

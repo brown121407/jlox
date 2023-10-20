@@ -1,5 +1,7 @@
 package lol.smarton.lox;
 
+import lol.smarton.lox.printers.AstPrinter;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +12,7 @@ import java.time.LocalTime;
 import static java.lang.StringTemplate.STR;
 
 public class Lox {
-    static boolean hadError = true;
+    static boolean hadError = false;
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
@@ -50,10 +52,14 @@ public class Lox {
     private static void run(String source) {
         var scanner = new Scanner(source);
         var tokens = scanner.scanTokens();
+        var parser = new Parser(tokens);
+        var expression = parser.parse();
 
-        for (var token : tokens) {
-            System.out.println(token);
+        if (hadError) {
+            return;
         }
+
+        System.out.println(new AstPrinter().walk(expression));
     }
 
     public static void error(int line, String message) {
@@ -65,5 +71,13 @@ public class Lox {
             STR."[line \{line}] Error \{where}: \{message}"
         );
         hadError = true;
+    }
+
+    public static void error(Token token, String message) {
+        if (token.type() == TokenType.EOF) {
+            report(token.line(), " at end", message);
+        } else {
+            report(token.line(), " at '" + token.lexeme() + "'", message);
+        }
     }
 }
