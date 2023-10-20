@@ -10,6 +10,7 @@ public interface AstWalker<T> {
             case Literal literal -> walk(literal);
             case Grouping grouping -> walk(grouping);
             case ExpressionList expressionList -> walk(expressionList);
+            case Ternary ternary -> walk(ternary);
         };
     }
 
@@ -18,4 +19,5 @@ public interface AstWalker<T> {
     T walk(Literal literal);
     T walk(Grouping grouping);
     T walk(ExpressionList expressionList);
+    T walk(Ternary ternary);
 }

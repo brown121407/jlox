@@ -51,4 +51,9 @@ public class RPNAstPrinter implements AstWalker<String> {
     public String walk(ExpressionList expressionList) {
         return "(" + expressionList.expressions().stream().map(this::walk).collect(Collectors.joining(", ")) + ")";
     }
+
+    @Override
+    public String walk(Ternary ternary) {
+        return STR."(if \{ternary.cond()} \{ternary.thenBranch()} \{ternary.elseBranch()})";
+    }
 }

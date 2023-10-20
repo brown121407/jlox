@@ -43,7 +43,20 @@ public class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return ternary();
+    }
+
+    private Expr ternary() {
+        var expr = equality();
+
+        if (match(QUESTION_MARK)) {
+            var thenBranch = ternary();
+            consume(COLON, "Expect : after first ternary branch.");
+            var elseBranch = ternary();
+            expr = new Ternary(expr, thenBranch, elseBranch);
+        }
+
+        return expr;
     }
 
     private Expr equality() {
@@ -113,7 +126,7 @@ public class Parser {
         }
 
         if (match(LEFT_PAREN)) {
-            var expr = expression();
+            var expr = commaExpression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Grouping(expr);
         }

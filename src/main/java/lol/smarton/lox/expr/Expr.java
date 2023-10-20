@@ -1,5 +1,5 @@
 package lol.smarton.lox.expr;
 
 
-public sealed interface Expr permits Binary, ExpressionList, Grouping, Literal, Unary {
+public sealed interface Expr permits Binary, ExpressionList, Grouping, Literal, Ternary, Unary {
 }

@@ -35,6 +35,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Ternary ternary) {
+        return parenthesize("if", ternary.cond(), ternary.thenBranch(), ternary.elseBranch());
+    }
+
+    @Override
     public String walk(Literal expr) {
         if (expr.value() == null) {
             return "nil";
