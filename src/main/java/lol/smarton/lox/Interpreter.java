@@ -53,6 +53,9 @@ public class Interpreter implements AstWalker<Object> {
             }
             case SLASH -> {
                 checkNumberOperands(binary.operator(), left, right);
+                if ((double) right == 0) {
+                    throw new RuntimeError(binary.operator(), "Division by 0.");
+                }
                 yield (double) left / (double) right;
             }
             case STAR -> {
