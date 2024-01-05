@@ -1,6 +1,6 @@
 package lol.smarton.lox;
 
-import lol.smarton.lox.expr.*;
+import lol.smarton.lox.ast.*;
 
 import static lol.smarton.lox.TokenType.*;
 
@@ -17,12 +17,33 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    public Expr parse() {
-        try {
-            return commaExpression();
-        } catch (ParseError error) {
-            return null;
+    public List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+        
+        return statements;
+    }
+    
+    private Stmt statement() {
+        if (match(PRINT)) {
+            return printStatement();
+        }
+        
+        return expressionStatement();
+    }
+    
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Stmt.Print(value);
+    }
+    
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
     }
 
     private Expr commaExpression() {
@@ -36,7 +57,7 @@ public class Parser {
                 exprs.add(next);
             } while (match(COMMA));
 
-            return new ExpressionList(exprs);
+            return new Expr.ExpressionList(exprs);
         } else {
             return expr;
         }
@@ -53,7 +74,7 @@ public class Parser {
             var thenBranch = ternary();
             consume(COLON, "Expect : after first ternary branch.");
             var elseBranch = ternary();
-            expr = new Ternary(expr, thenBranch, elseBranch);
+            expr = new Expr.Ternary(expr, thenBranch, elseBranch);
         }
 
         return expr;
@@ -65,7 +86,7 @@ public class Parser {
         while (match(BANG_EQUAL, EQUAL_EQUAL)) {
             var operator = previous();
             var right = comparison();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
@@ -76,7 +97,7 @@ public class Parser {
         while (match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
             var operator = previous();
             var right = term();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
@@ -88,7 +109,7 @@ public class Parser {
         while (match(MINUS, PLUS)) {
             var operator = previous();
             var right = factor();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
@@ -100,7 +121,7 @@ public class Parser {
         while (match(SLASH, STAR)) {
             var operator = previous();
             var right = unary();
-            expr = new Binary(expr, operator, right);
+            expr = new Expr.Binary(expr, operator, right);
         }
 
         return expr;
@@ -110,25 +131,25 @@ public class Parser {
         if (match(BANG, MINUS)) {
             var operator = previous();
             var right = unary();
-            return new Unary(operator, right);
+            return new Expr.Unary(operator, right);
         }
 
         return primary();
     }
 
     private Expr primary() {
-        if (match(FALSE)) return new Literal(false);
-        if (match(TRUE)) return new Literal(true);
-        if (match(NIL)) return new Literal(null);
+        if (match(FALSE)) return new Expr.Literal(false);
+        if (match(TRUE)) return new Expr.Literal(true);
+        if (match(NIL)) return new Expr.Literal(null);
 
         if (match(NUMBER, STRING)) {
-            return new Literal(previous().literal());
+            return new Expr.Literal(previous().literal());
         }
 
         if (match(LEFT_PAREN)) {
             var expr = commaExpression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
-            return new Grouping(expr);
+            return new Expr.Grouping(expr);
         }
 
         throw error(peek(), "Expected expression.");

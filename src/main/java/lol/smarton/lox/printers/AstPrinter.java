@@ -3,44 +3,44 @@ package lol.smarton.lox.printers;
 import lol.smarton.lox.AstWalker;
 import lol.smarton.lox.Token;
 import lol.smarton.lox.TokenType;
-import lol.smarton.lox.expr.*;
+import lol.smarton.lox.ast.*;
 
 public class AstPrinter implements AstWalker<String> {
     public static void main(String[] args) {
-        Expr expression = new Binary(
-            new Unary(
+        Expr expression = new Expr.Binary(
+            new Expr.Unary(
                 new Token(TokenType.MINUS, "-", null, 1),
-                new Literal(123)),
+                new Expr.Literal(123)),
             new Token(TokenType.STAR, "*", null, 1),
-            new Grouping(
-                new Literal(45.67)
+            new Expr.Grouping(
+                new Expr.Literal(45.67)
             )
         );
         System.out.println(new AstPrinter().walk(expression));
     }
 
     @Override
-    public String walk(Binary expr) {
+    public String walk(Expr.Binary expr) {
         return parenthesize(expr.operator().lexeme(), expr.left(), expr.right());
     }
 
     @Override
-    public String walk(Grouping expr) {
+    public String walk(Expr.Grouping expr) {
         return parenthesize("group", expr.expression());
     }
 
     @Override
-    public String walk(ExpressionList expressionList) {
+    public String walk(Expr.ExpressionList expressionList) {
         return parenthesize("comma", expressionList.expressions().toArray(Expr[]::new));
     }
 
     @Override
-    public String walk(Ternary ternary) {
+    public String walk(Expr.Ternary ternary) {
         return parenthesize("if", ternary.cond(), ternary.thenBranch(), ternary.elseBranch());
     }
 
     @Override
-    public String walk(Literal expr) {
+    public String walk(Expr.Literal expr) {
         if (expr.value() == null) {
             return "nil";
         }
@@ -48,10 +48,20 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
-    public String walk(Unary expr) {
+    public String walk(Expr.Unary expr) {
         return parenthesize(expr.operator().lexeme(), expr.right());
     }
 
+    @Override
+    public void walk(Stmt.Print print) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void walk(Stmt.Expression expression) {
+        throw new RuntimeException("Not implemented");
+    }
+    
     private String parenthesize(String name, Expr... exprs) {
         var builder = new StringBuilder();
         builder.append("(").append(name);

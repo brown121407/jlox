@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import static java.lang.StringTemplate.STR;
+
 public class Lox {
     private static final Interpreter interpreter = new Interpreter();
     private static boolean hadError = false;
@@ -53,13 +55,13 @@ public class Lox {
         var scanner = new Scanner(source);
         var tokens = scanner.scanTokens();
         var parser = new Parser(tokens);
-        var expression = parser.parse();
+        var stmts = parser.parse();
 
         if (hadError) {
             return;
         }
 
-        interpreter.interpret(expression);
+        interpreter.interpret(stmts);
     }
 
     public static void error(int line, String message) {
@@ -77,13 +79,12 @@ public class Lox {
         if (token.type() == TokenType.EOF) {
             report(token.line(), " at end", message);
         } else {
-            report(token.line(), " at '" + token.lexeme() + "'", message);
+            report(token.line(), STR." at '\{token.lexeme()}'", message);
         }
     }
 
     public static void runtimeError(RuntimeError error) {
-        System.err.println(error.getMessage() +
-            "\n[line " + error.token.line() + "]");
+        System.err.println(STR."\{error.getMessage()}\n[line \{error.token.line()}]");
         hadRuntimeError = true;
     }
 }

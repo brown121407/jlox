@@ -1,19 +1,22 @@
 package lol.smarton.lox;
 
-import lol.smarton.lox.expr.*;
+import lol.smarton.lox.ast.*;
+
+import java.util.List;
 
 public class Interpreter implements AstWalker<Object> {
-    public void interpret(Expr expr) {
+    public void interpret(List<Stmt> statements) {
         try {
-            Object value = walk(expr);
-            System.out.println(stringify(value));
+            for (Stmt statement : statements) {
+                walk(statement);
+            }
         } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
     }
 
     @Override
-    public Object walk(Binary binary) {
+    public Object walk(Expr.Binary binary) {
         var left = walk(binary.left());
         var right = walk(binary.right());
 
@@ -67,7 +70,7 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
-    public Object walk(Unary unary) {
+    public Object walk(Expr.Unary unary) {
         var right = walk(unary.right());
 
         return switch (unary.operator().type()) {
@@ -81,23 +84,34 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
-    public Object walk(Literal literal) {
+    public Object walk(Expr.Literal literal) {
         return literal.value();
     }
 
     @Override
-    public Object walk(Grouping grouping) {
+    public Object walk(Expr.Grouping grouping) {
         return walk(grouping.expression());
     }
 
     @Override
-    public Object walk(ExpressionList expressionList) {
+    public Object walk(Expr.ExpressionList expressionList) {
         return null;
     }
 
     @Override
-    public Object walk(Ternary ternary) {
+    public Object walk(Expr.Ternary ternary) {
         return null;
+    }
+
+    @Override
+    public void walk(Stmt.Print stmt) {
+        var value = walk(stmt.expression());
+        System.out.println(stringify(value));
+    }
+
+    @Override
+    public void walk(Stmt.Expression stmt) {
+        walk(stmt.expression());
     }
 
     private boolean isTruthy(Object object) {

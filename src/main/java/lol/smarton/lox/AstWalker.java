@@ -1,23 +1,33 @@
 package lol.smarton.lox;
 
-import lol.smarton.lox.expr.*;
+import lol.smarton.lox.ast.*;
 
 public interface AstWalker<T> {
     default T walk(Expr expr) {
         return switch (expr) {
-            case Binary binary -> walk(binary);
-            case Unary unary -> walk(unary);
-            case Literal literal -> walk(literal);
-            case Grouping grouping -> walk(grouping);
-            case ExpressionList expressionList -> walk(expressionList);
-            case Ternary ternary -> walk(ternary);
+            case Expr.Binary binary -> walk(binary);
+            case Expr.Unary unary -> walk(unary);
+            case Expr.Literal literal -> walk(literal);
+            case Expr.Grouping grouping -> walk(grouping);
+            case Expr.ExpressionList expressionList -> walk(expressionList);
+            case Expr.Ternary ternary -> walk(ternary);
+        };
+    }
+    
+    default void walk(Stmt stmt) {
+        switch (stmt) {
+            case Stmt.Print print -> walk(print);
+            case Stmt.Expression expression -> walk(expression);
         };
     }
 
-    T walk(Binary binary);
-    T walk(Unary unary);
-    T walk(Literal literal);
-    T walk(Grouping grouping);
-    T walk(ExpressionList expressionList);
-    T walk(Ternary ternary);
+    T walk(Expr.Binary binary);
+    T walk(Expr.Unary unary);
+    T walk(Expr.Literal literal);
+    T walk(Expr.Grouping grouping);
+    T walk(Expr.ExpressionList expressionList);
+    T walk(Expr.Ternary ternary);
+    
+    void walk(Stmt.Print print);
+    void walk(Stmt.Expression expression);
 }
