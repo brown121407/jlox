@@ -5,7 +5,7 @@ import lol.smarton.lox.Token;
 
 import java.util.List;
 
-public sealed interface Expr permits Expr.Binary, Expr.ExpressionList, Expr.Grouping, Expr.Literal, Expr.Ternary, Expr.Unary {
+public sealed interface Expr permits Expr.Binary, Expr.ExpressionList, Expr.Grouping, Expr.Literal, Expr.Ternary, Expr.Unary, Expr.Variable {
     record Binary(Expr left, Token operator, Expr right) implements Expr {
     }
 
@@ -22,5 +22,8 @@ public sealed interface Expr permits Expr.Binary, Expr.ExpressionList, Expr.Grou
     }
 
     record Unary(Token operator, Expr right) implements Expr {
+    }
+    
+    record Variable(Token name) implements Expr {
     }
 }
