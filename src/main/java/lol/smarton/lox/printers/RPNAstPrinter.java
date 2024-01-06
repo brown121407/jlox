@@ -58,12 +58,22 @@ public class RPNAstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Variable variable) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public void walk(Stmt.Print print) {
         throw new RuntimeException("Not implemented");
     }
 
     @Override
     public void walk(Stmt.Expression expression) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void walk(Stmt.Var stmt) {
         throw new RuntimeException("Not implemented");
     }
 }

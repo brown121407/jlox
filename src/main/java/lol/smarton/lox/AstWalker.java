@@ -11,6 +11,7 @@ public interface AstWalker<T> {
             case Expr.Grouping grouping -> walk(grouping);
             case Expr.ExpressionList expressionList -> walk(expressionList);
             case Expr.Ternary ternary -> walk(ternary);
+            case Expr.Variable variable -> walk(variable); 
         };
     }
     
@@ -18,6 +19,7 @@ public interface AstWalker<T> {
         switch (stmt) {
             case Stmt.Print print -> walk(print);
             case Stmt.Expression expression -> walk(expression);
+            case Stmt.Var var -> walk(var); 
         };
     }
 
@@ -27,7 +29,9 @@ public interface AstWalker<T> {
     T walk(Expr.Grouping grouping);
     T walk(Expr.ExpressionList expressionList);
     T walk(Expr.Ternary ternary);
+    T walk(Expr.Variable variable);
     
-    void walk(Stmt.Print print);
-    void walk(Stmt.Expression expression);
+    void walk(Stmt.Print stmt);
+    void walk(Stmt.Expression stmt);
+    void walk(Stmt.Var stmt);
 }

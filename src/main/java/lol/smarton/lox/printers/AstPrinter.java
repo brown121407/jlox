@@ -40,6 +40,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Variable variable) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public String walk(Expr.Literal expr) {
         if (expr.value() == null) {
             return "nil";
@@ -61,7 +66,12 @@ public class AstPrinter implements AstWalker<String> {
     public void walk(Stmt.Expression expression) {
         throw new RuntimeException("Not implemented");
     }
-    
+
+    @Override
+    public void walk(Stmt.Var stmt) {
+        throw new RuntimeException("Not implemented");
+    }
+
     private String parenthesize(String name, Expr... exprs) {
         var builder = new StringBuilder();
         builder.append("(").append(name);

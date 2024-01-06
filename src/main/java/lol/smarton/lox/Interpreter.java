@@ -5,6 +5,8 @@ import lol.smarton.lox.ast.*;
 import java.util.List;
 
 public class Interpreter implements AstWalker<Object> {
+    private final Environment environment = new Environment();
+    
     public void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
@@ -104,6 +106,11 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
+    public Object walk(Expr.Variable variable) {
+        return environment.get(variable.name());
+    }
+
+    @Override
     public void walk(Stmt.Print stmt) {
         var value = walk(stmt.expression());
         System.out.println(stringify(value));
@@ -112,6 +119,16 @@ public class Interpreter implements AstWalker<Object> {
     @Override
     public void walk(Stmt.Expression stmt) {
         walk(stmt.expression());
+    }
+
+    @Override
+    public void walk(Stmt.Var stmt) {
+        Object value = null;
+        if (stmt.initializer() != null) {
+            value = walk(stmt.initializer());
+        }
+        
+        environment.define(stmt.name().lexeme(), value);
     }
 
     private boolean isTruthy(Object object) {
