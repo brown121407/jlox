@@ -101,4 +101,14 @@ public class RPNAstPrinter implements AstWalker<String> {
     public void walk(Stmt.While stmt) {
         throw new RuntimeException("Not implemented");
     }
+
+    @Override
+    public void walk(Stmt.For stmt) {
+        throw new RuntimeException("Not implemented.");
+    }
+
+    @Override
+    public void walk(Stmt.LoopControl stmt) {
+        throw new RuntimeException("Not implemented.");
+    }
 }

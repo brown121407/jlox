@@ -25,6 +25,8 @@ public interface AstWalker<T> {
             case Stmt.Print print -> walk(print);
             case Stmt.Var var -> walk(var);
             case Stmt.While whileStmt -> walk(whileStmt);
+            case Stmt.For forStmt -> walk(forStmt);
+            case Stmt.LoopControl loopControl -> walk(loopControl);
         };
     }
 
@@ -44,4 +46,6 @@ public interface AstWalker<T> {
     void walk(Stmt.Print stmt);
     void walk(Stmt.Var stmt);
     void walk(Stmt.While stmt);
+    void walk(Stmt.For stmt);
+    void walk(Stmt.LoopControl stmt);
 }

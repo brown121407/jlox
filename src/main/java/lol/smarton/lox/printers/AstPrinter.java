@@ -97,6 +97,16 @@ public class AstPrinter implements AstWalker<String> {
         throw new RuntimeException("Not implemented");
     }
 
+    @Override
+    public void walk(Stmt.For stmt) {
+        throw new RuntimeException("Not implemented.");
+    }
+
+    @Override
+    public void walk(Stmt.LoopControl stmt) {
+        throw new RuntimeException("Not implemented.");
+    }
+
     private String parenthesize(String name, Expr... exprs) {
         var builder = new StringBuilder();
         builder.append("(").append(name);

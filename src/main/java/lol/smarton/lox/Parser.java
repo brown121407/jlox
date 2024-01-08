@@ -13,6 +13,7 @@ public class Parser {
 
     private final List<Token> tokens;
     private int current = 0;
+    private int loopDepth = 0;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -69,6 +70,9 @@ public class Parser {
         if (match(WHILE)) {
             return whileStatement();
         }
+        if (match(BREAK) || match(CONTINUE)) {
+            return loopControlStatement();
+        }
         if (match(LEFT_BRACE)) {
             return new Stmt.Block(block());
         }
@@ -100,28 +104,15 @@ public class Parser {
         }
         consume(RIGHT_PAREN, "Expect ')' after for clauses.");
 
+        loopDepth++;
         Stmt body = statement();
-
-        if (increment != null) {
-            body = new Stmt.Block(
-                List.of(
-                    body,
-                    new Stmt.Expression(increment)
-                )
-            );
-        }
+        loopDepth--;
 
         if (condition == null) {
             condition = new Expr.Literal(true);
         }
 
-        body = new Stmt.While(condition, body);
-
-        if (initializer != null) {
-            body = new Stmt.Block(List.of(initializer, body));
-        }
-
-        return body;
+        return new Stmt.For(initializer, condition, increment, body);
     }
 
     private Stmt ifStatement() {
@@ -148,9 +139,23 @@ public class Parser {
         consume(LEFT_PAREN, "Expect '(' after 'while'.");
         Expr condition = expression();
         consume(RIGHT_PAREN, "Expect ')' after condition.");
+
+        loopDepth++;
         Stmt body = statement();
+        loopDepth--;
 
         return new Stmt.While(condition, body);
+    }
+
+    private Stmt loopControlStatement() {
+        var token = previous();
+
+        if (loopDepth < 1) {
+            throw error(token, STR."Cannot use '\{token.lexeme()}' outside loop.");
+        }
+
+        consume(SEMICOLON, STR."Expect ';' after '\{token.lexeme()}'.");
+        return new Stmt.LoopControl(token);
     }
     
     private Stmt expressionStatement() {

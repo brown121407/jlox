@@ -1,0 +1,11 @@
+for (var i = 0; i < 20; i = i + 1) {
+    if (i > 4 and i < 7) {
+        continue;
+    }
+    if (i > 10) {
+        break;
+    }
+    print i;
+}
+
+continue;

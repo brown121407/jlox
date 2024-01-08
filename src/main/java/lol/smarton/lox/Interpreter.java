@@ -6,6 +6,9 @@ import java.util.List;
 
 public class Interpreter implements AstWalker<Object> {
     private Environment environment = new Environment();
+
+    private static class ContinueLoop extends RuntimeException {}
+    private static class BreakLoop extends RuntimeException {}
     
     public void interpret(List<Stmt> statements) {
         try {
@@ -188,7 +191,42 @@ public class Interpreter implements AstWalker<Object> {
     @Override
     public void walk(Stmt.While stmt) {
         while (isTruthy(walk(stmt.condition()))) {
-            walk(stmt.body());
+            try {
+                walk(stmt.body());
+            } catch (ContinueLoop _) {
+                // Do nothing.
+            } catch (BreakLoop _) {
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void walk(Stmt.For stmt) {
+        if (stmt.initializer() != null) {
+            walk(stmt.initializer());
+        }
+
+        while (isTruthy(walk(stmt.condition()))) {
+            try {
+                walk(stmt.body());
+            } catch (ContinueLoop _) {
+                // Do nothing.
+            } catch (BreakLoop _) {
+                break;
+            }
+
+            if (stmt.increment() != null) {
+                walk(stmt.increment());
+            }
+        }
+    }
+
+    @Override
+    public void walk(Stmt.LoopControl stmt) {
+        switch (stmt.token().type()) {
+            case BREAK -> throw new BreakLoop();
+            case CONTINUE -> throw new ContinueLoop();
         }
     }
 
