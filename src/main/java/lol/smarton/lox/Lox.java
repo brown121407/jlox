@@ -1,10 +1,14 @@
 package lol.smarton.lox;
 
+import lol.smarton.lox.ast.Expr;
+import lol.smarton.lox.ast.Stmt;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static java.lang.StringTemplate.STR;
 
@@ -46,21 +50,39 @@ public class Lox {
             if (line == null) {
                 break;
             }
-            run(line);
+            run(line, true);
             hadError = false;
         }
     }
 
     private static void run(String source) {
+        run(source, false);
+    }
+
+    private static void run(String source, boolean isRepl) {
         var scanner = new Scanner(source);
         var tokens = scanner.scanTokens();
         var parser = new Parser(tokens);
-        var stmts = parser.parse();
 
+        if (isRepl) {
+            var firstToken = tokens.getFirst();
+            var lastToken = tokens.getLast();
+
+            var stmtFirstTokens = List.of(TokenType.CLASS, TokenType.ELSE, TokenType.FUN, TokenType.FOR, TokenType.IF, TokenType.PRINT, TokenType.RETURN, TokenType.VAR, TokenType.WHILE);
+            var stmtLastTokens = List.of(TokenType.RIGHT_BRACE, TokenType.SEMICOLON);
+            if (!stmtLastTokens.contains(lastToken.type()) && !stmtFirstTokens.contains(firstToken.type())) {
+                // Pretty confident user didn't mean to type a statement.
+                var expr = parser.parseExpr();
+                var value = interpreter.walk(expr);
+                System.out.println(value);
+                return;
+            }
+        }
+
+        var stmts = parser.parse();
         if (hadError) {
             return;
         }
-
         interpreter.interpret(stmts);
     }
 

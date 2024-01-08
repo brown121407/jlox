@@ -25,6 +25,10 @@ public class Parser {
         
         return statements;
     }
+
+    public Expr parseExpr() {
+        return commaExpression();
+    }
     
     private Stmt declaration() {
         try {
