@@ -45,7 +45,7 @@ public class Lox {
         var reader = new BufferedReader(inputStreamReader);
 
         while (true) {
-            System.out.println("> ");
+            System.out.print("> ");
             var line = reader.readLine();
             if (line == null) {
                 break;
@@ -64,17 +64,17 @@ public class Lox {
         var tokens = scanner.scanTokens();
         var parser = new Parser(tokens);
 
-        if (isRepl) {
+        if (isRepl && tokens.size() >= 2) {
             var firstToken = tokens.getFirst();
-            var lastToken = tokens.getLast();
+            var lastNonEofToken = tokens.get(tokens.size() - 2);
 
             var stmtFirstTokens = List.of(TokenType.CLASS, TokenType.ELSE, TokenType.FUN, TokenType.FOR, TokenType.IF, TokenType.PRINT, TokenType.RETURN, TokenType.VAR, TokenType.WHILE);
             var stmtLastTokens = List.of(TokenType.RIGHT_BRACE, TokenType.SEMICOLON);
-            if (!stmtLastTokens.contains(lastToken.type()) && !stmtFirstTokens.contains(firstToken.type())) {
+            if (!stmtLastTokens.contains(lastNonEofToken.type()) && !stmtFirstTokens.contains(firstToken.type())) {
                 // Pretty confident user didn't mean to type a statement.
                 var expr = parser.parseExpr();
                 var value = interpreter.walk(expr);
-                System.out.println(value);
+                System.out.println(interpreter.stringify(value, true));
                 return;
             }
         }

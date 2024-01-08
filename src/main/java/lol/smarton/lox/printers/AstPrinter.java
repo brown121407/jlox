@@ -63,6 +63,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Logical logical) {
+        throw new RuntimeException("Not implemented.");
+    }
+
+    @Override
     public String walk(Expr.Unary expr) {
         return parenthesize(expr.operator().lexeme(), expr.right());
     }
@@ -78,7 +83,17 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public void walk(Stmt.If stmt) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public void walk(Stmt.Var stmt) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void walk(Stmt.While stmt) {
         throw new RuntimeException("Not implemented");
     }
 

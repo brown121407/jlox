@@ -98,6 +98,21 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
+    public Object walk(Expr.Logical logical) {
+        Object left = walk(logical.left());
+
+        if (logical.operator().type() == TokenType.OR) {
+            if (isTruthy(left)) {
+                return left;
+            }
+        } else if (!isTruthy(left)) {
+            return left;
+        }
+
+        return walk(logical.right());
+    }
+
+    @Override
     public Object walk(Expr.Grouping grouping) {
         return walk(grouping.expression());
     }
@@ -152,6 +167,15 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
+    public void walk(Stmt.If stmt) {
+        if (isTruthy(walk(stmt.condition()))) {
+            walk(stmt.thenBranch());
+        } else if (stmt.elseBranch() != null) {
+            walk(stmt.elseBranch());
+        }
+    }
+
+    @Override
     public void walk(Stmt.Var stmt) {
         Object value = null;
         if (stmt.initializer() != null) {
@@ -159,6 +183,13 @@ public class Interpreter implements AstWalker<Object> {
         }
         
         environment.define(stmt.name().lexeme(), value);
+    }
+
+    @Override
+    public void walk(Stmt.While stmt) {
+        while (isTruthy(walk(stmt.condition()))) {
+            walk(stmt.body());
+        }
     }
 
     private boolean isTruthy(Object object) {
@@ -187,7 +218,11 @@ public class Interpreter implements AstWalker<Object> {
         throw new RuntimeError(operator, "Operands must be numbers.");
     }
 
-    private String stringify(Object object) {
+    public String stringify(Object object) {
+        return stringify(object, false);
+    }
+
+    public String stringify(Object object, boolean isRepl) {
         if (object == null) {
             return "nil";
         }
@@ -198,6 +233,10 @@ public class Interpreter implements AstWalker<Object> {
                 text = text.substring(0, text.length() - 2);
             }
             return text;
+        }
+
+        if (isRepl && object instanceof String string) {
+            return STR."\"\{string}\"";
         }
 
         return object.toString();
