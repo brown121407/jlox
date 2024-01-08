@@ -104,12 +104,20 @@ public class Interpreter implements AstWalker<Object> {
 
     @Override
     public Object walk(Expr.ExpressionList expressionList) {
-        return null;
+        Object result = null;
+        for (var expr : expressionList.expressions()) {
+            result = walk(expr);
+        }
+        return result;
     }
 
     @Override
     public Object walk(Expr.Ternary ternary) {
-        return null;
+        Object condition = walk(ternary.cond());
+        if (isTruthy(condition)) {
+            return walk(ternary.thenBranch());
+        }
+        return walk(ternary.elseBranch());
     }
 
     @Override
