@@ -20,6 +20,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Assign assign) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public String walk(Expr.Binary expr) {
         return parenthesize(expr.operator().lexeme(), expr.left(), expr.right());
     }
@@ -42,6 +47,11 @@ public class AstPrinter implements AstWalker<String> {
     @Override
     public String walk(Expr.Variable variable) {
         throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void walk(Stmt.Block stmt) {
+        throw new RuntimeException("Not implemented.");
     }
 
     @Override

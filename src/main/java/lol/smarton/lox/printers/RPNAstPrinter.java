@@ -25,6 +25,11 @@ public class RPNAstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Assign assign) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public String walk(Expr.Binary binary) {
         return STR."\{ walk(binary.left())} \{ walk(binary.right())} \{binary.operator().lexeme()}";
     }
@@ -60,6 +65,11 @@ public class RPNAstPrinter implements AstWalker<String> {
     @Override
     public String walk(Expr.Variable variable) {
         throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void walk(Stmt.Block stmt) {
+        throw new RuntimeException("Not implemented.");
     }
 
     @Override

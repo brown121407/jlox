@@ -5,6 +5,7 @@ import lol.smarton.lox.ast.*;
 public interface AstWalker<T> {
     default T walk(Expr expr) {
         return switch (expr) {
+            case Expr.Assign assign -> walk(assign); 
             case Expr.Binary binary -> walk(binary);
             case Expr.Unary unary -> walk(unary);
             case Expr.Literal literal -> walk(literal);
@@ -17,12 +18,14 @@ public interface AstWalker<T> {
     
     default void walk(Stmt stmt) {
         switch (stmt) {
-            case Stmt.Print print -> walk(print);
+            case Stmt.Block block -> walk(block);
             case Stmt.Expression expression -> walk(expression);
-            case Stmt.Var var -> walk(var); 
+            case Stmt.Print print -> walk(print);
+            case Stmt.Var var -> walk(var);
         };
     }
 
+    T walk(Expr.Assign assign);
     T walk(Expr.Binary binary);
     T walk(Expr.Unary unary);
     T walk(Expr.Literal literal);
@@ -30,8 +33,9 @@ public interface AstWalker<T> {
     T walk(Expr.ExpressionList expressionList);
     T walk(Expr.Ternary ternary);
     T walk(Expr.Variable variable);
-    
-    void walk(Stmt.Print stmt);
+
+    void walk(Stmt.Block stmt);
     void walk(Stmt.Expression stmt);
+    void walk(Stmt.Print stmt);
     void walk(Stmt.Var stmt);
 }
