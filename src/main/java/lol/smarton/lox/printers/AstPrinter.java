@@ -30,6 +30,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Call call) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public String walk(Expr.Grouping expr) {
         return parenthesize("group", expr.expression());
     }
@@ -78,7 +83,17 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public void walk(Stmt.Return stmt) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public void walk(Stmt.Expression expression) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void walk(Stmt.Function stmt) {
         throw new RuntimeException("Not implemented");
     }
 

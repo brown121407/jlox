@@ -2,15 +2,34 @@ package lol.smarton.lox;
 
 import lol.smarton.lox.ast.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements AstWalker<Object> {
-    private Environment environment = new Environment();
+    final Environment globals = new Environment();
+    private Environment environment = globals;
 
     private static class ContinueLoop extends RuntimeException {}
     private static class BreakLoop extends RuntimeException {}
     
     public void interpret(List<Stmt> statements) {
+        globals.define("clock", new LoxCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                return (double)System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+
         try {
             for (Stmt statement : statements) {
                 walk(statement);
@@ -82,6 +101,26 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
+    public Object walk(Expr.Call expr) {
+        Object callee = walk(expr.callee());
+
+        List<Object> arguments = new ArrayList<>();
+        for (var argument : expr.arguments()) {
+            arguments.add(walk(argument));
+        }
+
+        if (!(callee instanceof LoxCallable function)) {
+            throw new RuntimeError(expr.paren(), "Can only call functions and classes.");
+        }
+
+        if (arguments.size() != function.arity()) {
+            throw new RuntimeError(expr.paren(), STR."Expected \{function.arity()} arguments but got \{arguments.size()}.");
+        }
+
+        return function.call(this, arguments);
+    }
+
+    @Override
     public Object walk(Expr.Unary unary) {
         var right = walk(unary.right());
 
@@ -145,12 +184,15 @@ public class Interpreter implements AstWalker<Object> {
 
     @Override
     public void walk(Stmt.Block stmt) {
-        var environment = new Environment(this.environment);
+        walkBlock(stmt.statements(), new Environment(environment));
+    }
+
+    public void walkBlock(List<Stmt> statements, Environment environment) {
         var previous = this.environment;
         try {
             this.environment = environment;
 
-            for (Stmt statement : stmt.statements()) {
+            for (Stmt statement : statements) {
                 walk(statement);
             }
         } finally {
@@ -165,8 +207,24 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
+    public void walk(Stmt.Return stmt) {
+        Object value = null;
+        if (stmt.value() != null) {
+            value = walk(stmt.value());
+        }
+
+        throw new Return(value);
+    }
+
+    @Override
     public void walk(Stmt.Expression stmt) {
         walk(stmt.expression());
+    }
+
+    @Override
+    public void walk(Stmt.Function stmt) {
+        var function = new LoxFunction(stmt, environment);
+        environment.define(stmt.name().lexeme(), function);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package lol.smarton.lox;
 
-import lol.smarton.lox.ast.Expr;
-import lol.smarton.lox.ast.Stmt;
 
 import java.io.BufferedReader;
 import java.io.IOException;
