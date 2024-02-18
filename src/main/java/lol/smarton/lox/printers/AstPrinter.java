@@ -55,6 +55,11 @@ public class AstPrinter implements AstWalker<String> {
     }
 
     @Override
+    public String walk(Expr.Function function) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
     public void walk(Stmt.Block stmt) {
         throw new RuntimeException("Not implemented.");
     }

@@ -183,6 +183,15 @@ public class Interpreter implements AstWalker<Object> {
     }
 
     @Override
+    public Object walk(Expr.Function expr) {
+        return new LoxFunction(new Stmt.Function(
+            new Token(TokenType.IDENTIFIER, "*lambda*", null, -1),
+            expr.params(),
+            expr.body()
+        ), environment);
+    }
+
+    @Override
     public void walk(Stmt.Block stmt) {
         walkBlock(stmt.statements(), new Environment(environment));
     }
